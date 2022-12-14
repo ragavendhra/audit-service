@@ -1,12 +1,11 @@
 package com.jsw.auditSystem.model;
 
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Immutable;
-
-import javax.persistence.*;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -16,12 +15,12 @@ import javax.persistence.*;
 @Table(name = "user_info")
 @Immutable
 public class UserInfo {
+
   @Id
   @GeneratedValue(generator = "avail_user_id_seq", strategy = GenerationType.AUTO)
   private Long id;
 
   private String email;
-
 
   @Column(nullable = false)
   private String password;
@@ -44,6 +43,4 @@ public class UserInfo {
   private UserGroup userGroup;*/
 
   private boolean accountSetupFinished;
-
-
 }

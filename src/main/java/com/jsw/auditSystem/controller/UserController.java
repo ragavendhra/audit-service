@@ -1,6 +1,7 @@
 package com.jsw.auditSystem.controller;
 
 import com.jsw.auditSystem.model.UserInfo;
+import com.jsw.auditSystem.model.UserInfoAudit;
 import com.jsw.auditSystem.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,8 +29,14 @@ private UserService userService;
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public  List<UserInfo> getAllUserInfo()
     {
-        return  userService.getAllUserInfo();
+        return userService.getAllUserInfo();
     }
+
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE, path = "/get-audit-data")
+    public List<UserInfoAudit> getAllAuditData(){
+        return userService.getAllUsersFromMongo();
+    }
+
     @PutMapping(
             value = "/{id}",
             consumes = MediaType.APPLICATION_JSON_VALUE,
