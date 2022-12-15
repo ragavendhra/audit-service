@@ -18,23 +18,8 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserInfoMongoRepository userInfoMongoRepository;
 
-    @Autowired
-    UserInfoAudit userInfoAudit;
-
     @Override
     public UserInfo createAccount(UserInfo userInfo) {
-
-        //setting up the data for the userInfoAudit object
-        userInfoAudit.setEmail(userInfo.getEmail());
-        userInfoAudit.setPassword(userInfo.getPassword());
-        userInfoAudit.setFirstname(userInfo.getFirstname());
-        userInfoAudit.setLastname(userInfo.getLastname());
-        userInfoAudit.setAccountSetupFinished(userInfo.isAccountSetupFinished());
-
-        //saving the data in the mongodb collection user_info
-        userInfoMongoRepository.save(userInfoAudit);
-
-        //saving the data in the postgres and returning
         return userInfoRepository.save(userInfo);
     }
 
