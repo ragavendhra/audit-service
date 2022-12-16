@@ -1,11 +1,12 @@
 package com.jsw.auditSystem.model;
 
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Immutable;
+
+import javax.persistence.*;
 
 @AllArgsConstructor
 @NoArgsConstructor
