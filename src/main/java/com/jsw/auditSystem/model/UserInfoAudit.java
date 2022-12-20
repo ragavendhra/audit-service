@@ -7,7 +7,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @NoArgsConstructor
-@Document(collection = "user_info")
+@Document(collection = "user_info_audit")
 public class UserInfoAudit {
 
     private String email;

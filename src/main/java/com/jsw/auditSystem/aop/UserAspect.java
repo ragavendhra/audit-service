@@ -50,6 +50,6 @@ public class UserAspect {
         userInfoAudit.setAccountSetupFinished(userInfo.isAccountSetupFinished());
 
         //saving the object to the mongo repository
-        userInfoMongoRepository.save(userInfoAudit);
+        userInfoMongoRepository.insert(userInfoAudit);
     }
 }
