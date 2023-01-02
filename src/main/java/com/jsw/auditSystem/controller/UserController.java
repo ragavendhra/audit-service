@@ -1,10 +1,10 @@
 package com.jsw.auditSystem.controller;
 
+import com.jsw.auditSystem.model.Response;
 import com.jsw.auditSystem.model.UserInfo;
 import com.jsw.auditSystem.model.UserInfoAudit;
 import com.jsw.auditSystem.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,21 +20,21 @@ private UserService userService;
     @PostMapping(
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-        public ResponseEntity<UserInfo> createAccount(@RequestBody UserInfo userInfo)
+        public ResponseEntity<Response<UserInfo>> createAccount(@RequestBody UserInfo userInfo)
         {
             UserInfo saveAccount = userService.createAccount(userInfo);
-            return new ResponseEntity<>(saveAccount, HttpStatus.CREATED);
+            return ResponseEntity.ok(Response.of(saveAccount));
          }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public  List<UserInfo> getAllUserInfo()
+    public  ResponseEntity<Response<List<UserInfo>>> getAllUserInfo()
     {
-        return userService.getAllUserInfo();
+        return ResponseEntity.ok(Response.of(userService.getAllUserInfo()));
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE, path = "/get-audit-data")
-    public List<UserInfoAudit> getAllAuditData(){
-        return userService.getAllUsersFromMongo();
+    public ResponseEntity<Response<List<UserInfoAudit>>> getAllAuditData(){
+        return ResponseEntity.ok(Response.of(userService.getAllUsersFromMongo()));
     }
 
     @PutMapping(

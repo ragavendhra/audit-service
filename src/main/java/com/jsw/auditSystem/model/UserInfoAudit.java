@@ -5,10 +5,14 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import javax.persistence.Column;
+
 @Data
 @NoArgsConstructor
 @Document(collection = "user_info_audit")
-public class UserInfoAudit {
+public class UserInfoAudit /*extends Auditable<String>*/ {
+
+    private Long id;
 
     private String email;
 
@@ -18,5 +22,6 @@ public class UserInfoAudit {
 
     private String lastname;
 
-    private boolean accountSetupFinished;
+    private String operation;
+
 }
