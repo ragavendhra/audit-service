@@ -1,8 +1,6 @@
 server:
   port: 8082
   max-http-header-size: 10485760
-  servlet:
-    context-path: /audit
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/audit
@@ -12,7 +10,7 @@ spring:
     properties:
       hibernate:
         show_sql: true
-        hbm2ddl.auto: validate
+        hbm2ddl.auto: update
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
 

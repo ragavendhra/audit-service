@@ -1,18 +1,23 @@
 package com.jsw.auditSystem.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.persistence.Column;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 @Document(collection = "user_info_audit")
-public class UserInfoAudit /*extends Auditable<String>*/ {
+@Builder
+public class UserInfoAudit {
 
-    private Long id;
+    private String id;
 
     private String email;
 
@@ -23,5 +28,7 @@ public class UserInfoAudit /*extends Auditable<String>*/ {
     private String lastname;
 
     private String operation;
+
+    private List<UserInfo> userInfoList;
 
 }

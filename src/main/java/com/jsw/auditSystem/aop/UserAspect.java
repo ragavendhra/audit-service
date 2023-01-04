@@ -1,6 +1,9 @@
 package com.jsw.auditSystem.aop;
 
-import com.jsw.auditSystem.model.UserInfoAudit;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jsw.auditSystem.model.*;
+import com.jsw.auditSystem.repository.AddressMangoRepository;
 import com.jsw.auditSystem.repository.UserInfoMongoRepository;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -13,11 +16,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.StandardReflectionParameterNameDiscoverer;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
+import java.util.List;
 
 @Aspect
 @Configuration
@@ -27,6 +33,9 @@ public class UserAspect {
 
     @Autowired
     private UserInfoMongoRepository userInfoMongoRepository;
+
+    @Autowired
+    private AddressMangoRepository addressMangoRepository;
 
   /*  @Autowired
     private UserInfoAudit userInfoAudit;*/
@@ -60,7 +69,7 @@ public class UserAspect {
         userInfoMongoRepository.insert(userInfoAudit);
     }
   */
-  @Around("execution(* com.jsw.auditSystem.controller.UserController.*(..))")
+  @Around("execution(* com.jsw.auditSystem.controller.*.*(..))")
     public Object around(ProceedingJoinPoint proceedingJoinPoint){
         Object result = null;
         long beginTime = System.currentTimeMillis();
@@ -72,48 +81,76 @@ public class UserAspect {
             exception.printStackTrace();
         }
         //saving the log
-        saveLog(proceedingJoinPoint, beginTime);
+        saveLog(proceedingJoinPoint, beginTime, result);
         return result;
     }
 
-    private void saveLog(ProceedingJoinPoint proceedingJoinPoint, long time){
+    private void saveLog(ProceedingJoinPoint proceedingJoinPoint, long time, Object result){
 
         //getting the method signature
         MethodSignature methodSignature = (MethodSignature) proceedingJoinPoint.getSignature();
 
         //retrieving the method
         Method method = methodSignature.getMethod();
-
-
-
         String className = proceedingJoinPoint.getTarget().getClass().getName();
-
         String methodName = methodSignature.getName();
-     //   AuditCode value();
+//         AuditCode value();
        // applicationLog.setMethodName(className + "." + methodName + "()");
-
         Object[] arguments = proceedingJoinPoint.getArgs();
 
-        StandardReflectionParameterNameDiscoverer standardReflectionParameterNameDiscoverer = new StandardReflectionParameterNameDiscoverer();
-
-        String[] parameterNames = standardReflectionParameterNameDiscoverer.getParameterNames(method);
-
-        if(arguments != null && parameterNames != null){
-            String params = "";
-            for(int i = 0; i < arguments.length; i++){
-                params += " " + parameterNames[i] + ": " + arguments[i];
-            }
-          //  applicationLog.setInputValue(params);
-        }
+//        StandardReflectionParameterNameDiscoverer standardReflectionParameterNameDiscoverer = new StandardReflectionParameterNameDiscoverer();
+//        String[] parameterNames = standardReflectionParameterNameDiscoverer.getParameterNames(method);
+//        if(arguments != null && parameterNames != null){
+//            String params = "";
+//            for(int i = 0; i < arguments.length; i++){
+//                params += " " + parameterNames[i] + ": " + arguments[i];
+//            }
+//          //  applicationLog.setInputValue(params);
+//        }
 
         HttpServletRequest httpServletRequest = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
         //applicationLog.(httpServletRequest.getServletPath());
        // applicationLog.setUserName("shreyash");
        // applicationLog.setRequestTime(Instant.ofEpochMilli(time).atZone(ZoneId.of("Africa/Tunis")).toLocalDateTime());
+        String path = httpServletRequest.getServletPath();
 
-        UserInfoAudit applicationLog = new UserInfoAudit();
-        applicationLog.setOperation(httpServletRequest.getMethod());
-        userInfoMongoRepository.insert(applicationLog);
+        //checking whether the api contains the object name and pushing the built object to the respective repository
+        if(path.contains("user")){
+            UserInfoAudit userInfoAudit;
+            if(!httpServletRequest.getMethod().equals("GET")){
+                ResponseEntity<Response<UserInfo>> resultantObject = (ResponseEntity<Response<UserInfo>>) result;
+                UserInfo userInfo = resultantObject.getBody().getContent();
+                userInfoAudit = UserInfoAudit.builder().firstname(userInfo.getFirstname())
+                        .lastname(userInfo.getLastname())
+                        .email(userInfo.getEmail())
+                        .password(userInfo.getPassword())
+                        .operation(httpServletRequest.getMethod())
+                        .build();
+                userInfoMongoRepository.insert(userInfoAudit);
+            }
+
+            else{
+                ResponseEntity<Response<List<UserInfo>>> resultantObject = (ResponseEntity<Response<List<UserInfo>>>) result;
+                List<UserInfo> usersInfoList = resultantObject.getBody().getContent();
+                userInfoAudit = UserInfoAudit.builder().userInfoList(usersInfoList)
+                        .operation(httpServletRequest.getMethod())
+                        .build();
+                userInfoMongoRepository.insert(userInfoAudit);
+            }
+        }
+
+        else if(path.contains("address")){
+            AddressInfo addressInfo;
+            if(!httpServletRequest.getMethod().equals("GET"))
+            {
+                ResponseEntity<Address> resultantObject = (ResponseEntity<Address>) result;
+                addressInfo = AddressInfo.builder().addressName(resultantObject.getBody().getAddressName())
+                        .operation(httpServletRequest.getMethod())
+                        .build();
+                addressMangoRepository.insert(addressInfo);
+            }
+        }
+
     }
 
 }

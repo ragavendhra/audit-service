@@ -1,15 +1,19 @@
 package com.jsw.auditSystem.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 @Document(collection = "AddressInfo")
-public class AddressInfo /*extends Auditable<String> */{
+@Builder
+public class AddressInfo{
 
-    private Long id;
+    private String id;
 
     private String addressName;
 

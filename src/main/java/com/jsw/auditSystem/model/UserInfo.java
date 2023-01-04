@@ -1,5 +1,6 @@
 package com.jsw.auditSystem.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,8 +14,9 @@ import javax.persistence.*;
 @Data
 @Builder
 @Entity
-@Table(name = "user_info")
 @Immutable
+@Table(name = "user_info")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class UserInfo {
 
   @Id
