@@ -29,46 +29,13 @@ import java.util.List;
 @Configuration
 public class UserAspect {
 
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
-
     @Autowired
     private UserInfoMongoRepository userInfoMongoRepository;
 
     @Autowired
     private AddressMangoRepository addressMangoRepository;
 
-  /*  @Autowired
-    private UserInfoAudit userInfoAudit;*/
 
-    //What kind of method calls I would intercept
-    //execution(* PACKAGE.*.*(..))
-    //Weaving & Weaver
-    @Before("execution(* com.jsw.auditSystem.controller.*.*(..))")
-    public void before(JoinPoint joinPoint){
-        //Advice
-        logger.info(" Check for user access ");
-        logger.info(" Allowed execution for {}", joinPoint.getClass().getFields());
-    }
-
-  /*  @After("execution(* com.jsw.auditSystem.controller.*.createAccount(..))")
-    public void beforeCreateAccount(JoinPoint joinPoint){
-        //receiving the user info object within the objects array
-        Object[] objects = joinPoint.getArgs();
-
-        //type-casting the object into UserInfo
-        UserInfo userInfo = (UserInfo) objects[0];
-
-        //setting up the data for the userInfoAudit object
-      *//*  userInfoAudit.setEmail(userInfo.getEmail());
-        userInfoAudit.setPassword(userInfo.getPassword());
-        userInfoAudit.setFirstname(userInfo.getFirstname());
-        userInfoAudit.setLastname(userInfo.getLastname());
-        userInfoAudit.setAccountSetupFinished(userInfo.isAccountSetupFinished());*//*
-
-        //saving the object to the mongo repository
-        userInfoMongoRepository.insert(userInfoAudit);
-    }
-  */
   @Around("execution(* com.jsw.auditSystem.controller.*.*(..))")
     public Object around(ProceedingJoinPoint proceedingJoinPoint){
         Object result = null;
@@ -88,30 +55,7 @@ public class UserAspect {
     private void saveLog(ProceedingJoinPoint proceedingJoinPoint, long time, Object result){
 
         //getting the method signature
-        MethodSignature methodSignature = (MethodSignature) proceedingJoinPoint.getSignature();
-
-        //retrieving the method
-        Method method = methodSignature.getMethod();
-        String className = proceedingJoinPoint.getTarget().getClass().getName();
-        String methodName = methodSignature.getName();
-//         AuditCode value();
-       // applicationLog.setMethodName(className + "." + methodName + "()");
-        Object[] arguments = proceedingJoinPoint.getArgs();
-
-//        StandardReflectionParameterNameDiscoverer standardReflectionParameterNameDiscoverer = new StandardReflectionParameterNameDiscoverer();
-//        String[] parameterNames = standardReflectionParameterNameDiscoverer.getParameterNames(method);
-//        if(arguments != null && parameterNames != null){
-//            String params = "";
-//            for(int i = 0; i < arguments.length; i++){
-//                params += " " + parameterNames[i] + ": " + arguments[i];
-//            }
-//          //  applicationLog.setInputValue(params);
-//        }
-
         HttpServletRequest httpServletRequest = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-        //applicationLog.(httpServletRequest.getServletPath());
-       // applicationLog.setUserName("shreyash");
-       // applicationLog.setRequestTime(Instant.ofEpochMilli(time).atZone(ZoneId.of("Africa/Tunis")).toLocalDateTime());
         String path = httpServletRequest.getServletPath();
 
         //checking whether the api contains the object name and pushing the built object to the respective repository
@@ -130,6 +74,7 @@ public class UserAspect {
             }
 
             else{
+                // auditing the GET ALL we need add one more condition for getById
                 ResponseEntity<Response<List<UserInfo>>> resultantObject = (ResponseEntity<Response<List<UserInfo>>>) result;
                 List<UserInfo> usersInfoList = resultantObject.getBody().getContent();
                 userInfoAudit = UserInfoAudit.builder().userInfoList(usersInfoList)

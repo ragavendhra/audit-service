@@ -41,8 +41,9 @@ private UserService userService;
             value = "/{id}",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public UserInfo updateUser(
+    public ResponseEntity<Response<UserInfo>> updateUser(
             @PathVariable("id") Long id, @RequestBody UserInfo userInfo) {
-        return userService.editUserInfo(id, userInfo);
+       UserInfo user = userService.editUserInfo(id, userInfo);
+    return ResponseEntity.ok(Response.of(user));
     }
 }
