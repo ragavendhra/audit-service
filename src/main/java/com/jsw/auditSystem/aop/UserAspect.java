@@ -1,28 +1,18 @@
 package com.jsw.auditSystem.aop;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jsw.auditSystem.model.*;
 import com.jsw.auditSystem.repository.AddressMangoRepository;
 import com.jsw.auditSystem.repository.UserInfoMongoRepository;
-import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
-import org.aspectj.lang.reflect.MethodSignature;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.StandardReflectionParameterNameDiscoverer;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
-import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.util.List;
 
 @Aspect
@@ -42,6 +32,9 @@ public class UserAspect {
         long beginTime = System.currentTimeMillis();
         try{
             //execution method
+          //  request ; ladelinfo chnade ladle 150 changed commonJSOn
+            // object type ,method name, opetione, object
+            //annotation based on the @anotation
             result = proceedingJoinPoint.proceed();
         }
         catch(Throwable exception){
@@ -59,9 +52,14 @@ public class UserAspect {
         String path = httpServletRequest.getServletPath();
 
         //checking whether the api contains the object name and pushing the built object to the respective repository
+        buildingObject(result, httpServletRequest, path);
+
+    }
+
+    private void buildingObject(Object result, HttpServletRequest httpServletRequest, String path) {
         if(path.contains("user")){
             UserInfoAudit userInfoAudit;
-            if(!httpServletRequest.getMethod().equals("GET")){
+            if(!httpServletRequest.getMethod().equals("GET")){//post,put
                 ResponseEntity<Response<UserInfo>> resultantObject = (ResponseEntity<Response<UserInfo>>) result;
                 UserInfo userInfo = resultantObject.getBody().getContent();
                 userInfoAudit = UserInfoAudit.builder().firstname(userInfo.getFirstname())
@@ -95,7 +93,6 @@ public class UserAspect {
                 addressMangoRepository.insert(addressInfo);
             }
         }
-
     }
 
 }
