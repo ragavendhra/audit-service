@@ -1,17 +1,27 @@
 package com.jsw.auditSystem.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jsw.auditSystem.model.Employee;
+import com.jsw.auditSystem.model.EmployeeInfo;
 import com.jsw.auditSystem.model.Logger;
+import com.jsw.auditSystem.repository.EmployeeInfoMangoRepository;
 import com.jsw.auditSystem.repository.EmployeeRepository;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RestController
 class EmployeeController {
 
     private final EmployeeRepository repository;
+    private final EmployeeInfoMangoRepository employeeInfoMangoRepository;
 
-    EmployeeController(EmployeeRepository repository) {
+    EmployeeController(EmployeeRepository repository, EmployeeInfoMangoRepository employeeInfoMangoRepository) {
         this.repository = repository;
+        this.employeeInfoMangoRepository = employeeInfoMangoRepository;
     }
 
     //@Logger("Employee viewed.")
@@ -50,5 +60,16 @@ class EmployeeController {
                 .orElseThrow(() -> new RuntimeException(String.valueOf(id)));
         employee.setDeleted();
         return repository.save(employee);
+    }
+
+    @GetMapping("/employees/mango/{id}")
+    List<EmployeeInfo> getByIdFromMango(@PathVariable String id) {
+     List<EmployeeInfo> infoMap = employeeInfoMangoRepository.findByEmpId(id);
+       /* ObjectMapper mapper = new ObjectMapper();
+      List<Employee> li=   infoMap.stream().map(map1 -> {
+                  return mapper.convertValue(map1, Employee.class);
+              }
+                ).collect(Collectors.toList());*/
+        return infoMap;
     }
 }

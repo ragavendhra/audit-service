@@ -45,7 +45,7 @@ public class Log {
             }
         }
 if("Employee created.".equals(methodMessage) || "Employee updated.".equals(methodMessage)){
-    employeeInfoMangoRepository.insert(EmployeeInfo.builder().logElements(logElements).build());
+    employeeInfoMangoRepository.insert(EmployeeInfo.builder().empId(logElements.get("id")).logElements(logElements).build());
 }
         logger.info("method message: " + methodMessage);
         logger.info("displayed fields: " + String.join(", ", displayFields)+"  "+logElements.toString());
