@@ -11,9 +11,13 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -28,28 +32,32 @@ public class Log {
     static java.util.logging.Logger logger = java.util.logging.Logger.getLogger("Aspect Logger");
 
     @AfterReturning(pointcut = "@annotation(com.jsw.auditSystem.model.Logger)", returning = "object")
-    private  void log(JoinPoint joinPoint, Object object) throws IllegalAccessException {
-
+    private void log(JoinPoint joinPoint, Object object) throws IllegalAccessException {
         String methodMessage = getMethodMessage(joinPoint);
         Class<?> objectClass = object.getClass();
+        HttpServletRequest httpServletRequest = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
         Map<String, String> logElements = new HashMap<>();
         Set<String> displayFields = new HashSet<>();
+        String operation = httpServletRequest.getMethod();
         for (Field field : objectClass.getDeclaredFields()) {
             field.setAccessible(true);
-            if (field.isAnnotationPresent(Logger.class)) {
+            if ("POST".equals(operation)) {
+                logElements.put(field.getName(), String.valueOf(field.get(object)));
+            } else if (field.isAnnotationPresent(Logger.class)) {
                 if (checkIsShowDataEnabled(field)) {
                     logElements.put(getFieldValue(field), String.valueOf(field.get(object)));
                 } else {
                     displayFields.add(getFieldValue(field));
+                    //  }
                 }
             }
         }
-if("Employee created.".equals(methodMessage) || "Employee updated.".equals(methodMessage)){
-    employeeInfoMangoRepository.insert(EmployeeInfo.builder().empId(logElements.get("id")).logElements(logElements).build());
-}
-        logger.info("method message: " + methodMessage);
-        logger.info("displayed fields: " + String.join(", ", displayFields)+"  "+logElements.toString());
-        logger.info("displayed fields with data: " + logElements.toString());
+        if ("Employee created.".equals(methodMessage) || "Employee updated.".equals(methodMessage)) {
+            logElements.put("Operation", operation);
+            logElements.put("createdBy", "ragu");
+            logElements.put("createdDate", String.valueOf(Instant.now()));
+            employeeInfoMangoRepository.insert(EmployeeInfo.builder().empId(logElements.get("id")).logElements(logElements).build());
+        }
 
     }//save the data in  map
 

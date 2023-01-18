@@ -2,13 +2,16 @@ package com.jsw.auditSystem;
 
 import com.jsw.auditSystem.model.UserInfoAudit;
 import com.jsw.auditSystem.repository.UserInfoMongoRepository;
-import org.springframework.beans.factory.annotation.Value;
+import com.jsw.auditSystem.util.SpringSecurityAuditorAware;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.domain.AuditorAware;
+import org.springframework.data.mongodb.config.EnableMongoAuditing;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 @EnableMongoRepositories(basePackageClasses = UserInfoMongoRepository.class)
+@EnableMongoAuditing
 @SpringBootApplication
 public class AuditSystemApplication {
 
@@ -33,4 +36,8 @@ public class AuditSystemApplication {
 								.termsOfService("http://swagger.io/terms/")
 								.license(new License().name("Apache 2.0").url("http://springdoc.org")));
 	}*/
+	@Bean
+	public AuditorAware getAuditorAware(){
+		return new SpringSecurityAuditorAware();
+	}
 }

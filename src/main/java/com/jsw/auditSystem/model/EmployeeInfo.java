@@ -11,7 +11,7 @@ import java.util.Map;
 @AllArgsConstructor
 @Document(collection = "employee_info")
 @Builder
-public class EmployeeInfo {
+public class EmployeeInfo /*extends Auditable*/{
     private String  empId;
     private Map<String, String> logElements;
 }

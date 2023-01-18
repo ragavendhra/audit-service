@@ -12,10 +12,8 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import java.util.Date;
 
-@MappedSuperclass
-@EntityListeners(AuditingEntityListener.class)
-public abstract class Auditable<U> {
 
+public class Auditable<U> {
     @CreatedBy
     protected U createdBy;
 
@@ -23,11 +21,12 @@ public abstract class Auditable<U> {
     @Temporal(TemporalType.TIMESTAMP)
     protected Date creationDate;
 
-    @LastModifiedBy
+   /* @LastModifiedBy
     protected U lastModifiedBy;
 
     @LastModifiedDate
     @Temporal(TemporalType.TIMESTAMP)
     protected Date lastModifiedDate;
+*/
 
 }
