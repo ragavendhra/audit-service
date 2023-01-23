@@ -1,16 +1,19 @@
 package com.jsw.auditSystem.aop;
 
 
+import com.jsw.auditSystem.model.AddressInfo;
 import com.jsw.auditSystem.model.EmployeeInfo;
 import com.jsw.auditSystem.model.Logger;
+import com.jsw.auditSystem.model.UserInfoAudit;
+import com.jsw.auditSystem.repository.AddressMangoRepository;
 import com.jsw.auditSystem.repository.EmployeeInfoMangoRepository;
+import com.jsw.auditSystem.repository.UserInfoMongoRepository;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -29,6 +32,13 @@ public class Log {
 
     @Autowired
     private EmployeeInfoMangoRepository employeeInfoMangoRepository;
+
+    @Autowired
+    private AddressMangoRepository addressMangoRepository;
+
+    @Autowired
+    private UserInfoMongoRepository userInfoMongoRepository;
+
     static java.util.logging.Logger logger = java.util.logging.Logger.getLogger("Aspect Logger");
 
     @AfterReturning(pointcut = "@annotation(com.jsw.auditSystem.model.Logger)", returning = "object")
@@ -52,14 +62,33 @@ public class Log {
                 }
             }
         }
-        if ("Employee created.".equals(methodMessage) || "Employee updated.".equals(methodMessage)) {
-            logElements.put("Operation", operation);
-            logElements.put("createdBy", "ragu");
-            logElements.put("createdDate", String.valueOf(Instant.now()));
-            employeeInfoMangoRepository.insert(EmployeeInfo.builder().empId(logElements.get("id")).logElements(logElements).build());
+
+        switch(methodMessage){
+
+            //cases for the employee class
+            case "Employee updated.":
+            case "Employee created.":
+                insertingAdditionalInformationIntoMap(logElements, operation);
+                employeeInfoMangoRepository.insert(EmployeeInfo.builder().empId(logElements.get("id")).logElements(logElements).build());
+                break;
+
+            //cases for the address class
+            case "Address updated.":
+            case "Address created.":
+                insertingAdditionalInformationIntoMap(logElements, operation);
+                addressMangoRepository.insert(AddressInfo.builder().addressId(logElements.get("id")).logElements(logElements).build());
+                break;
+
+            //cases for user class
+            case "User created.":
+            case "User updated.":
+                insertingAdditionalInformationIntoMap(logElements, operation);
+                userInfoMongoRepository.insert(UserInfoAudit.builder().userId(logElements.get("id")).logElements(logElements).build());
+                break;
+
         }
 
-    }//save the data in  map
+    }
 
     private static String getMethodMessage(JoinPoint joinPoint) {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
@@ -75,5 +104,11 @@ public class Log {
 
     private static boolean checkIsShowDataEnabled(Field field) {
         return field.getAnnotation(Logger.class).showData();
+    }
+
+    private void insertingAdditionalInformationIntoMap(Map logElements, String operation){
+        logElements.put("operation", operation);
+        logElements.put("createdBy", "shreyash");
+        logElements.put("createdDate", String.valueOf(Instant.now()));
     }
 }

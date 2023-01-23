@@ -3,11 +3,13 @@ package com.jsw.auditSystem.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jsw.auditSystem.model.Employee;
 import com.jsw.auditSystem.model.EmployeeInfo;
+import com.jsw.auditSystem.model.JsonEmployeeObject;
 import com.jsw.auditSystem.model.Logger;
 import com.jsw.auditSystem.repository.EmployeeInfoMangoRepository;
 import com.jsw.auditSystem.repository.EmployeeRepository;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -63,13 +65,27 @@ class EmployeeController {
     }
 
     @GetMapping("/employees/mango/{id}")
-    List<EmployeeInfo> getByIdFromMango(@PathVariable String id) {
+    List<JsonEmployeeObject> getByIdFromMango(@PathVariable String id) {
      List<EmployeeInfo> infoMap = employeeInfoMangoRepository.findByEmpId(id);
+
+     //creating a list of only logElements
+     List<Map<String, String>> listOfMaps = new ArrayList<>();
+
+     //adding each logElement of respective employeeInfo object into listOfMaps list
+     for(EmployeeInfo employeeInfo : infoMap){
+         listOfMaps.add(employeeInfo.getLogElements());
+     }
        /* ObjectMapper mapper = new ObjectMapper();
       List<Employee> li=   infoMap.stream().map(map1 -> {
                   return mapper.convertValue(map1, Employee.class);
               }
                 ).collect(Collectors.toList());*/
-        return infoMap;
+
+        //mapping the object fields with the fields of the map(logElements)
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<JsonEmployeeObject> jsonEmployeeObjectsList = listOfMaps.stream().map(map1 ->
+                objectMapper.convertValue(map1, JsonEmployeeObject.class)).collect(Collectors.toList());
+
+        return jsonEmployeeObjectsList;
     }
 }

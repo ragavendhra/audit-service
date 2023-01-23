@@ -6,17 +6,18 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Map;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "AddressInfo")
+@Document(collection = "address_info")
 @Builder
 public class AddressInfo{
 
-    private String id;
+    private String addressId;
 
-    private String addressName;
+    private Map<String, String> logElements;
 
-    private String operation;
 
 }

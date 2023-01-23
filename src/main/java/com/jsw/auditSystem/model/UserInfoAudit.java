@@ -8,7 +8,9 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.persistence.Column;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Data
 @NoArgsConstructor
@@ -17,18 +19,7 @@ import java.util.List;
 @Builder
 public class UserInfoAudit {
 
-    private String id;
+    private String userId;
 
-    private String email;
-
-    private String password;
-
-    private String firstname;
-
-    private String lastname;
-
-    private String operation;
-
-    private List<UserInfo> userInfoList;
-
+    private Map<String, String> logElements;
 }

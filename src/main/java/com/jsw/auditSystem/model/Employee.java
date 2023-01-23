@@ -32,7 +32,7 @@ public class Employee {
     private String name;
 
     @Column
-  //  @Logger(value = "role", showData = true)
+    @Logger(value = "role", showData = true)
     private String role;
 
     @Column

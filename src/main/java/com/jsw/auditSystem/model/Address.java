@@ -17,10 +17,12 @@ import javax.persistence.*;
 @Immutable
 public class Address {
     @Id
-    @GeneratedValue(generator = "address_id_seq", strategy = GenerationType.IDENTITY)
+    @Column
+    @Logger(value = "id", showData = true)
     private Long id;
 
     @Column(nullable = false)
+    @Logger(value = "addressName", showData = true)
     private String addressName;
 
 }

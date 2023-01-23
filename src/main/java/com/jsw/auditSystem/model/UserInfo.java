@@ -20,18 +20,24 @@ import javax.persistence.*;
 public class UserInfo {
 
   @Id
-  @GeneratedValue(generator = "avail_user_id_seq", strategy = GenerationType.AUTO)
+  @Column
+  @Logger(value = "id", showData = true)
   private Long id;
 
+  @Column
+  @Logger(value = "email", showData = true)
   private String email;
 
   @Column(nullable = false)
+  @Logger(value = "password", showData = true)
   private String password;
 
   @Column(nullable = false)
+  @Logger(value ="firstname", showData = true)
   private String firstname;
 
   @Column(nullable = false)
+  @Logger(value = "lastname", showData = true)
   private String lastname;
 
  /* @Enumerated(EnumType.STRING)
@@ -45,5 +51,7 @@ public class UserInfo {
           foreignKey = @ForeignKey(name = "avail_user_user_group_fk"))
   private UserGroup userGroup;*/
 
+  @Column
+  @Logger(value = "accountSetupFinished", showData = true)
   private boolean accountSetupFinished;
 }
