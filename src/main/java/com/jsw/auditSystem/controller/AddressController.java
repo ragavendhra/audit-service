@@ -1,6 +1,8 @@
 package com.jsw.auditSystem.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jsw.auditSystem.exceptions.AddressInfoNotFoundException;
+import com.jsw.auditSystem.exceptions.UserInfoNotFoundException;
 import com.jsw.auditSystem.model.Address;
 import com.jsw.auditSystem.model.AddressInfo;
 import com.jsw.auditSystem.model.JsonAddressObject;
@@ -38,10 +40,7 @@ public class AddressController {
                     address.setAddressName(newAddress.getAddressName());
                     return addressRepository.save(address);
                 })
-                .orElseGet(() -> {
-                    newAddress.setId(id);
-                    return addressRepository.save(newAddress);
-                });
+                .orElseThrow(() -> new AddressInfoNotFoundException("Address  not found for this id : " + id));
     }
 
     @GetMapping("/addresses/mongo/{id}")

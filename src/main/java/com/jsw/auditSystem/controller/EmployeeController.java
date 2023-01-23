@@ -1,6 +1,7 @@
 package com.jsw.auditSystem.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jsw.auditSystem.exceptions.UserInfoNotFoundException;
 import com.jsw.auditSystem.model.Employee;
 import com.jsw.auditSystem.model.EmployeeInfo;
 import com.jsw.auditSystem.model.JsonEmployeeObject;
@@ -48,10 +49,8 @@ class EmployeeController {
                     employee.setRole(newEmployee.getRole());
                     return repository.save(employee);
                 })
-                .orElseGet(() -> {
-                    newEmployee.setId(id);
-                    return repository.save(newEmployee);
-                });
+                .orElseThrow(() -> new UserInfoNotFoundException("User does not exist with this id :  " + id));
+
     }
 
     //soft delete
